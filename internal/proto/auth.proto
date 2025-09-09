@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+package auth;
+
+message TokenResponse {
+  string access_token = 1;
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;  
+}
+
+message LoginResponse {
+  bool status = 1;
+  string message = 2;
+  TokenResponse data = 3;
+}
+
+service AuthService {
+  rpc Login (LoginRequest) returns (LoginResponse) {};
+}

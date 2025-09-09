@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+package user;
+
+import "google/protobuf/empty.proto";
+
+message UserDBResponse {
+  int64 role_id = 1;
+  string role_name = 2;
+  string name = 3;
+  string email = 4;
+  string last_access = 5;
+}
+
+message DataResponse {
+  repeated UserDBResponse users = 1;
+}
+
+message GetAllResponse {
+  bool status = 1;
+  string message = 2;
+  DataResponse data = 3;
+}
+
+message CreateRequest {
+  int64 role_id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message CreateResponse {
+  bool status = 1;
+  string message = 2;
+}
+
+message UpdateRequest {
+  string name = 2;
+}
+
+message UpdateResponse {
+  bool status = 1;
+  string message = 2;
+}
+
+message DeleteResponse {
+  bool status = 1;
+  string message = 2;
+}
+
+service UserService {
+  rpc Create (CreateRequest) returns (CreateResponse) {};
+  rpc GetAll (google.protobuf.Empty) returns (GetAllResponse) {};
+  rpc Update (UpdateRequest) returns (UpdateResponse) {};
+  rpc Delete (google.protobuf.Empty) returns (DeleteResponse) {};
+}
