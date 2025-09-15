@@ -3,49 +3,55 @@ package delivery
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
-	"github.com/adhyttungga/go-grpc-test/internal/repository"
+	"github.com/adhyttungga/go-grpc-test/internal/usecase"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type authServer struct {
 	pb.UnimplementedAuthServiceServer
-	Repository repository.AuthRepository
-	Ctx        context.Context
+	Usecase usecase.AuthUsecase
 }
 
-func NewAuthServer(repo repository.AuthRepository, ctx context.Context) *authServer {
+func NewAuthServer(uc usecase.AuthUsecase) *authServer {
 	return &authServer{
-		Repository: repo,
-		Ctx:        ctx,
+		Usecase: uc,
 	}
 }
 
 func (s *authServer) Login(ctx context.Context, input *pb.LoginRequest) (*pb.LoginResponse, error) {
-
-	user, err := s.Repository.Login(input.Email)
+	result, err := s.Usecase.Login(ctx, input)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	if !strings.EqualFold(user.Password, input.Password) {
-		return nil, status.Error(codes.Unauthenticated, fmt.Sprintln("invalid credential"))
+	// Set authorization header
+	header := metadata.Pairs(
+		"authorization", fmt.Sprintf("Bearer %s", result.Data.AccessToken),
+	)
+
+	_ = grpc.SetHeader(ctx, header)
+
+	return result, nil
+}
+
+func (s *authServer) Logout(ctx context.Context, input *emptypb.Empty) (*pb.LogoutResponse, error) {
+	result, err := s.Usecase.Logout(ctx)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	// set user to redis here
+	// Empty authorization header
+	header := metadata.Pairs(
+		"authorization", "",
+	)
 
-	// create access token here
+	_ = grpc.SetHeader(ctx, header)
 
-	result := pb.LoginResponse{
-		Status:  true,
-		Message: "Successfully",
-		Data: &pb.TokenResponse{
-			AccessToken: "",
-		},
-	}
-
-	return &result, nil
+	return result, nil
 }

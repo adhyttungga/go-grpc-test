@@ -45,6 +45,10 @@ message UpdateResponse {
   string message = 2;
 }
 
+message DeleteRequest {
+  int64 id = 1;
+}
+
 message DeleteResponse {
   bool status = 1;
   string message = 2;
@@ -54,5 +58,5 @@ service UserService {
   rpc Create (CreateRequest) returns (CreateResponse) {};
   rpc GetAll (google.protobuf.Empty) returns (GetAllResponse) {};
   rpc Update (UpdateRequest) returns (UpdateResponse) {};
-  rpc Delete (google.protobuf.Empty) returns (DeleteResponse) {};
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {};
 }

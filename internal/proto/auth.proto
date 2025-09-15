@@ -4,6 +4,8 @@ option go_package = ".";
 
 package auth;
 
+import "google/protobuf/empty.proto";
+
 message TokenResponse {
   string access_token = 1;
 }
@@ -19,6 +21,12 @@ message LoginResponse {
   TokenResponse data = 3;
 }
 
+message LogoutResponse {
+  bool status=1;
+  string message =2;
+}
+
 service AuthService {
   rpc Login (LoginRequest) returns (LoginResponse) {};
+  rpc Logout (google.protobuf.Empty) returns (LogoutResponse) {};
 }

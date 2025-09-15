@@ -2,74 +2,72 @@ package delivery
 
 import (
 	"context"
+	"errors"
 
-	"github.com/adhyttungga/go-grpc-test/internal/models/entity"
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
-	"github.com/adhyttungga/go-grpc-test/internal/repository"
+	"github.com/adhyttungga/go-grpc-test/internal/usecase"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type userServer struct {
 	pb.UnimplementedUserServiceServer
-	Repository repository.UserRepository
-	Ctx        context.Context
+	Usecase usecase.UserUsecase
 }
 
-func NewUserServer(repo repository.UserRepository, ctx context.Context) *userServer {
-	return &userServer{
-		Repository: repo,
-		Ctx:        ctx,
-	}
+func NewUserServer(uc usecase.UserUsecase) *userServer {
+	return &userServer{Usecase: uc}
 }
 
 func (s *userServer) Create(ctx context.Context, input *pb.CreateRequest) (*pb.CreateResponse, error) {
-	// cek role right
-
-	data := entity.User{
-		RoleId:   input.RoleId,
-		Name:     input.Name,
-		Email:    input.Email,
-		Password: input.Password,
-	}
-
-	_, err := s.Repository.Create(data)
+	result, err := s.Usecase.Create(ctx, input)
 	if err != nil {
+		if errors.Is(err, errors.New("unauthorized access")) {
+			return nil, status.Error(codes.PermissionDenied, err.Error())
+		}
+
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	resp := pb.CreateResponse{
-		Status:  true,
-		Message: "Successfully",
-	}
-	return &resp, nil
+	return result, nil
 }
 
-// func (s *userServer) GetAll(ctx context.Context) (*pb.GetAllResponse, error) {
-// 	users, err := s.Repository.GetAll()
-// 	if err != nil {
-// 		return nil, status.Error(codes.InvalidArgument, err.Error())
-// 	}
-// 	var resp []*pb.UserDBResponse
-// 	for _, val := range users {
-// 		user := pb.UserDBResponse{
-// 			RoleId:     val.RoleId,
-// 			RoleName:   "",
-// 			Name:       val.Name,
-// 			Email:      val.Email,
-// 			LastAccess: "",
-// 		}
+func (s *userServer) GetAll(ctx context.Context, input *emptypb.Empty) (*pb.GetAllResponse, error) {
+	result, err := s.Usecase.GetAll(ctx)
+	if err != nil {
+		if errors.Is(err, errors.New("unauthorized access")) {
+			return nil, status.Error(codes.PermissionDenied, err.Error())
+		}
 
-// 		resp = append(resp, &user)
-// 	}
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
-// 	result := pb.GetAllResponse{
-// 		Status:  true,
-// 		Message: "Successfully",
-// 		Data: &pb.DataResponse{
-// 			Users: resp,
-// 		},
-// 	}
+	return result, nil
+}
 
-// 	return &result, nil
-// }
+func (s *userServer) Update(ctx context.Context, input *pb.UpdateRequest) (*pb.UpdateResponse, error) {
+	result, err := s.Usecase.Update(ctx, input)
+	if err != nil {
+		if errors.Is(err, errors.New("unauthorized access")) {
+			return nil, status.Error(codes.PermissionDenied, err.Error())
+		}
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return result, nil
+}
+
+func (s *userServer) Delete(ctx context.Context, input *pb.DeleteRequest) (*pb.DeleteResponse, error) {
+	result, err := s.Usecase.Delete(ctx, input)
+	if err != nil {
+		if errors.Is(err, errors.New("unauthorized access")) {
+			return nil, status.Error(codes.PermissionDenied, err.Error())
+		}
+
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	return result, nil
+}

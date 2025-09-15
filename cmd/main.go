@@ -4,64 +4,79 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 
 	delivery "github.com/adhyttungga/go-grpc-test/api/v1"
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
 	"github.com/adhyttungga/go-grpc-test/internal/repository"
+	"github.com/adhyttungga/go-grpc-test/internal/usecase"
 	"github.com/adhyttungga/go-grpc-test/pkg/config"
-	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func main() {
-	// redis client
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:8081",
-		Password: "",
-		DB:       0,
-	})
-
-	pong, err := client.Ping(context.Background()).Result()
+	// Initialize redis client
+	client, err := config.RedisInit(context.Background())
 	if err != nil {
-		log.Fatalf("error to connect redis: %v", err)
+		log.Fatalf("error to initialize redis client: %v", err)
 	}
 
-	log.Println("Connected to redis: ", pong)
-
+	// Initialize database connection
 	db, err := config.DBInit()
 	if err != nil {
-		log.Fatalf("error to connect db: %v", err)
+		log.Fatalf("error to initialize db connection: %v", err)
 	}
 
+	// Initialize repository
+	authRepo := repository.NewAuthRepository(db, client)
+	userRepo := repository.NewUserRepository(db, client)
+
+	// Initialize usecase
+	authUsecase := usecase.NewAuthUsecase(authRepo)
+	userUsecase := usecase.NewUserUsecase(userRepo)
+
+	// Initialize delivery
+	authDelivery := delivery.NewAuthServer(authUsecase)
+	userDelivery := delivery.NewUserServer(userUsecase)
+
+	// Initialize tcp connection
 	listen, err := net.Listen("tcp", ":8080")
 	if err != nil {
-		log.Fatalf("error to listen: %v", err)
+		log.Fatalf("failed to listen: %v", err)
 	}
 
 	defer listen.Close()
 
+	// Initialize new gRPC server
 	grpcServer := grpc.NewServer()
 
-	// create new metadata
-	md := metadata.New(map[string]string{
-		"Headers":       "X-Link-Service",
-		"Authorization": "Bearer Token",
-	})
+	// Register service server
+	pb.RegisterAuthServiceServer(grpcServer, authDelivery)
+	pb.RegisterUserServiceServer(grpcServer, userDelivery)
 
-	ctxWithMetadata := metadata.NewOutgoingContext(context.Background(), md)
+	// Gracefully shutdown
+	go func() {
+		// Service connection
+		if err := grpcServer.Serve(listen); err != nil {
+			log.Fatalf("failed to serve: %v", err)
+		}
+	}()
 
-	// register
-	auth_repo := repository.NewAuthRepository(db)
-	user_repo := repository.NewUserRepository(db)
+	log.Printf("Listening and serving.")
 
-	auth_delivery := delivery.NewAuthServer(auth_repo, ctxWithMetadata)
-	user_delivery := delivery.NewUserServer(user_repo, ctxWithMetadata)
+	// Wait for interrupt signal to gracefully shutdown the server
+	// with timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default send syscall.SIGTERM
+	// kill -2 is syscall.SIGINT (Ctrl + C)
+	// kill -9 is syscall.SIGKILL but can't be catch
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutdown server...")
 
-	pb.RegisterAuthServiceServer(grpcServer, auth_delivery)
-	pb.RegisterUserServiceServer(grpcServer, user_delivery)
+	grpcServer.GracefulStop()
 
-	if err := grpcServer.Serve(listen); err != nil {
-		log.Fatalf("error to serve: %v", err)
-	}
+	log.Println("User service shutdown completed gracefully")
 }

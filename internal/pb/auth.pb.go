@@ -9,6 +9,7 @@ package __
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -177,12 +178,64 @@ func (x *LoginResponse) GetData() *TokenResponse {
 	return nil
 }
 
+type LogoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        bool                   `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutResponse) Reset() {
+	*x = LogoutResponse{}
+	mi := &file_auth_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutResponse) ProtoMessage() {}
+
+func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
+func (*LogoutResponse) Descriptor() ([]byte, []int) {
+	return file_auth_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *LogoutResponse) GetStatus() bool {
+	if x != nil {
+		return x.Status
+	}
+	return false
+}
+
+func (x *LogoutResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_auth_proto protoreflect.FileDescriptor
 
 const file_auth_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"auth.proto\x12\x04auth\"2\n" +
+	"auth.proto\x12\x04auth\x1a\x1bgoogle/protobuf/empty.proto\"2\n" +
 	"\rTokenResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
@@ -191,9 +244,13 @@ const file_auth_proto_rawDesc = "" +
 	"\rLoginResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12'\n" +
-	"\x04data\x18\x03 \x01(\v2\x13.auth.TokenResponseR\x04data2A\n" +
+	"\x04data\x18\x03 \x01(\v2\x13.auth.TokenResponseR\x04data\"B\n" +
+	"\x0eLogoutResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\bR\x06status\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2{\n" +
 	"\vAuthService\x122\n" +
-	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\"\x00B\x03Z\x01.b\x06proto3"
+	"\x05Login\x12\x12.auth.LoginRequest\x1a\x13.auth.LoginResponse\"\x00\x128\n" +
+	"\x06Logout\x12\x16.google.protobuf.Empty\x1a\x14.auth.LogoutResponse\"\x00B\x03Z\x01.b\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -207,18 +264,22 @@ func file_auth_proto_rawDescGZIP() []byte {
 	return file_auth_proto_rawDescData
 }
 
-var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_auth_proto_goTypes = []any{
-	(*TokenResponse)(nil), // 0: auth.TokenResponse
-	(*LoginRequest)(nil),  // 1: auth.LoginRequest
-	(*LoginResponse)(nil), // 2: auth.LoginResponse
+	(*TokenResponse)(nil),  // 0: auth.TokenResponse
+	(*LoginRequest)(nil),   // 1: auth.LoginRequest
+	(*LoginResponse)(nil),  // 2: auth.LoginResponse
+	(*LogoutResponse)(nil), // 3: auth.LogoutResponse
+	(*emptypb.Empty)(nil),  // 4: google.protobuf.Empty
 }
 var file_auth_proto_depIdxs = []int32{
 	0, // 0: auth.LoginResponse.data:type_name -> auth.TokenResponse
 	1, // 1: auth.AuthService.Login:input_type -> auth.LoginRequest
-	2, // 2: auth.AuthService.Login:output_type -> auth.LoginResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
+	4, // 2: auth.AuthService.Logout:input_type -> google.protobuf.Empty
+	2, // 3: auth.AuthService.Login:output_type -> auth.LoginResponse
+	3, // 4: auth.AuthService.Logout:output_type -> auth.LogoutResponse
+	3, // [3:5] is the sub-list for method output_type
+	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
 	1, // [1:1] is the sub-list for extension extendee
 	0, // [0:1] is the sub-list for field type_name
@@ -235,7 +296,7 @@ func file_auth_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_proto_rawDesc), len(file_auth_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

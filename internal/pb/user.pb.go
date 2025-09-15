@@ -418,6 +418,50 @@ func (x *UpdateResponse) GetMessage() string {
 	return ""
 }
 
+type DeleteRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteRequest) Reset() {
+	*x = DeleteRequest{}
+	mi := &file_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteRequest) ProtoMessage() {}
+
+func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
+func (*DeleteRequest) Descriptor() ([]byte, []int) {
+	return file_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteRequest) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
 type DeleteResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        bool                   `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
@@ -428,7 +472,7 @@ type DeleteResponse struct {
 
 func (x *DeleteResponse) Reset() {
 	*x = DeleteResponse{}
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -440,7 +484,7 @@ func (x *DeleteResponse) String() string {
 func (*DeleteResponse) ProtoMessage() {}
 
 func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_proto_msgTypes[7]
+	mi := &file_user_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -453,7 +497,7 @@ func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
 func (*DeleteResponse) Descriptor() ([]byte, []int) {
-	return file_user_proto_rawDescGZIP(), []int{7}
+	return file_user_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *DeleteResponse) GetStatus() bool {
@@ -501,15 +545,17 @@ const file_user_proto_rawDesc = "" +
 	"\x04name\x18\x02 \x01(\tR\x04name\"B\n" +
 	"\x0eUpdateResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"B\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x1f\n" +
+	"\rDeleteRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"B\n" +
 	"\x0eDeleteResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage2\xef\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\xec\x01\n" +
 	"\vUserService\x125\n" +
 	"\x06Create\x12\x13.user.CreateRequest\x1a\x14.user.CreateResponse\"\x00\x128\n" +
 	"\x06GetAll\x12\x16.google.protobuf.Empty\x1a\x14.user.GetAllResponse\"\x00\x125\n" +
-	"\x06Update\x12\x13.user.UpdateRequest\x1a\x14.user.UpdateResponse\"\x00\x128\n" +
-	"\x06Delete\x12\x16.google.protobuf.Empty\x1a\x14.user.DeleteResponse\"\x00B\x03Z\x01.b\x06proto3"
+	"\x06Update\x12\x13.user.UpdateRequest\x1a\x14.user.UpdateResponse\"\x00\x125\n" +
+	"\x06Delete\x12\x13.user.DeleteRequest\x1a\x14.user.DeleteResponse\"\x00B\x03Z\x01.b\x06proto3"
 
 var (
 	file_user_proto_rawDescOnce sync.Once
@@ -523,7 +569,7 @@ func file_user_proto_rawDescGZIP() []byte {
 	return file_user_proto_rawDescData
 }
 
-var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_user_proto_goTypes = []any{
 	(*UserDBResponse)(nil), // 0: user.UserDBResponse
 	(*DataResponse)(nil),   // 1: user.DataResponse
@@ -532,20 +578,21 @@ var file_user_proto_goTypes = []any{
 	(*CreateResponse)(nil), // 4: user.CreateResponse
 	(*UpdateRequest)(nil),  // 5: user.UpdateRequest
 	(*UpdateResponse)(nil), // 6: user.UpdateResponse
-	(*DeleteResponse)(nil), // 7: user.DeleteResponse
-	(*emptypb.Empty)(nil),  // 8: google.protobuf.Empty
+	(*DeleteRequest)(nil),  // 7: user.DeleteRequest
+	(*DeleteResponse)(nil), // 8: user.DeleteResponse
+	(*emptypb.Empty)(nil),  // 9: google.protobuf.Empty
 }
 var file_user_proto_depIdxs = []int32{
 	0, // 0: user.DataResponse.users:type_name -> user.UserDBResponse
 	1, // 1: user.GetAllResponse.data:type_name -> user.DataResponse
 	3, // 2: user.UserService.Create:input_type -> user.CreateRequest
-	8, // 3: user.UserService.GetAll:input_type -> google.protobuf.Empty
+	9, // 3: user.UserService.GetAll:input_type -> google.protobuf.Empty
 	5, // 4: user.UserService.Update:input_type -> user.UpdateRequest
-	8, // 5: user.UserService.Delete:input_type -> google.protobuf.Empty
+	7, // 5: user.UserService.Delete:input_type -> user.DeleteRequest
 	4, // 6: user.UserService.Create:output_type -> user.CreateResponse
 	2, // 7: user.UserService.GetAll:output_type -> user.GetAllResponse
 	6, // 8: user.UserService.Update:output_type -> user.UpdateResponse
-	7, // 9: user.UserService.Delete:output_type -> user.DeleteResponse
+	8, // 9: user.UserService.Delete:output_type -> user.DeleteResponse
 	6, // [6:10] is the sub-list for method output_type
 	2, // [2:6] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -564,7 +611,7 @@ func file_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_proto_rawDesc), len(file_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
