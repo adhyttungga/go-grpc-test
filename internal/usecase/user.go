@@ -3,11 +3,14 @@ package usecase
 import (
 	"context"
 	"errors"
+	"log"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/adhyttungga/go-grpc-test/internal/models/entity"
 	"github.com/adhyttungga/go-grpc-test/internal/repository"
+	"golang.org/x/crypto/bcrypt"
 
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
 )
@@ -33,7 +36,7 @@ func (u *UserUsecaseImpl) Create(ctx context.Context, input *pb.CreateRequest) (
 	route := "/users/user"
 
 	// Get user id from ctx
-	userId, _ := ctx.Value("user_id").(int64)
+	userId, _ := ctx.Value("user_id").(string)
 
 	// Get section from ctx
 	section, _ := ctx.Value("section").(string)
@@ -57,12 +60,17 @@ func (u *UserUsecaseImpl) Create(ctx context.Context, input *pb.CreateRequest) (
 	}
 
 	// Return err if r_created != 1
-	rCreate, _ := (*role)["r_create"].(int)
+	rCreate := int((*role)["r_create"].(int64))
 	if rCreate != 1 {
 		return nil, errors.New("unauthorized access")
 	}
 
-	// Next: Hashed password
+	// Generate hash password
+	hp, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
+	if err != nil {
+		log.Printf("error creating hash password")
+		return nil, err
+	}
 
 	// Create User
 	_, err = u.Repository.CreateUser(
@@ -70,7 +78,7 @@ func (u *UserUsecaseImpl) Create(ctx context.Context, input *pb.CreateRequest) (
 			RoleId:   input.RoleId,
 			Name:     input.Name,
 			Email:    input.Email,
-			Password: input.Password,
+			Password: string(hp),
 		},
 	)
 	if err != nil {
@@ -88,7 +96,7 @@ func (u *UserUsecaseImpl) GetAll(ctx context.Context) (*pb.GetAllResponse, error
 	route := "/users/user"
 
 	// Get user id from ctx
-	userId, _ := ctx.Value("user_id").(int64)
+	userId, _ := ctx.Value("user_id").(string)
 
 	// Get section from ctx
 	section, _ := ctx.Value("section").(string)
@@ -112,7 +120,7 @@ func (u *UserUsecaseImpl) GetAll(ctx context.Context) (*pb.GetAllResponse, error
 	}
 
 	// Return err if r_read != 1
-	rRead, _ := (*role)["r_read"].(int)
+	rRead := int((*role)["r_read"].(int64))
 	if rRead != 1 {
 		return nil, errors.New("unauthorized access")
 	}
@@ -158,7 +166,7 @@ func (u *UserUsecaseImpl) Update(ctx context.Context, input *pb.UpdateRequest) (
 	route := "/users/user"
 
 	// Get user id from ctx
-	userId, _ := ctx.Value("user_id").(int64)
+	userId, _ := ctx.Value("user_id").(string)
 
 	// Get section from ctx
 	section, _ := ctx.Value("section").(string)
@@ -182,14 +190,15 @@ func (u *UserUsecaseImpl) Update(ctx context.Context, input *pb.UpdateRequest) (
 	}
 
 	// Return err if r_update != 1
-	rUpdate, _ := (*role)["r_update"].(int)
+	rUpdate := int((*role)["r_update"].(int64))
 	if rUpdate != 1 {
 		return nil, errors.New("unauthorized access")
 	}
 
 	// Update User
+	userIdI64, _ := strconv.ParseInt(userId, 10, 64)
 	user.Name = input.Name
-	_, err = u.Repository.UpdateUser(userId, *user)
+	_, err = u.Repository.UpdateUser(userIdI64, *user)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +215,7 @@ func (u *UserUsecaseImpl) Delete(ctx context.Context, input *pb.DeleteRequest) (
 	route := "/users/user"
 
 	// Get user id from ctx
-	userId, _ := ctx.Value("user_id").(int64)
+	userId, _ := ctx.Value("user_id").(string)
 
 	// Get section from ctx
 	section, _ := ctx.Value("section").(string)
@@ -230,7 +239,7 @@ func (u *UserUsecaseImpl) Delete(ctx context.Context, input *pb.DeleteRequest) (
 	}
 
 	// Return err if r_delete != 1
-	rDelete, _ := (*role)["r_delete"].(int)
+	rDelete := int((*role)["r_delete"].(int64))
 	if rDelete != 1 {
 		return nil, errors.New("unauthorized access")
 	}

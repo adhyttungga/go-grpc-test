@@ -3,11 +3,12 @@ package usecase
 import (
 	"context"
 	"errors"
-	"strings"
+	"time"
 
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
 	"github.com/adhyttungga/go-grpc-test/internal/repository"
 	"github.com/adhyttungga/go-grpc-test/pkg/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthUsecaseImpl struct {
@@ -33,12 +34,12 @@ func (u *AuthUsecaseImpl) Login(ctx context.Context, input *pb.LoginRequest) (*p
 	}
 
 	// Validate password
-	// Next: Hashed password
-	if !strings.EqualFold(user.Password, input.Password) {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		return nil, errors.New("invalid credential")
 	}
 
-	// Next: Update user last access
+	// Update user last access
+	user.LastAccess = time.Now().UnixMilli()
 
 	// Set user session
 	err = u.Repository.StoreUserCache(ctx, user.Id, *user)
@@ -63,7 +64,7 @@ func (u *AuthUsecaseImpl) Login(ctx context.Context, input *pb.LoginRequest) (*p
 
 func (u *AuthUsecaseImpl) Logout(ctx context.Context) (*pb.LogoutResponse, error) {
 	// Get user id from ctx
-	userId, _ := ctx.Value("user_id").(int64)
+	userId, _ := ctx.Value("user_id").(string)
 
 	if err := u.Repository.DeleteUserCache(ctx, userId); err != nil {
 		return nil, err

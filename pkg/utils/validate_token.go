@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/adhyttungga/go-grpc-test/pkg/config"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func ValidateToken(token string, userId *string) bool {
-	key, err := jwt.ParseRSAPublicKeyFromPEM([]byte("add public key here"))
+	key, err := jwt.ParseRSAPublicKeyFromPEM([]byte(config.Config.PublicKey))
 	if err != nil {
 		log.Printf("error parse the key: %v", err)
 		return false
@@ -33,6 +34,6 @@ func ValidateToken(token string, userId *string) bool {
 	}
 
 	id, _ := claims["dat"].(string)
-	userId = &id
+	*userId = id
 	return true
 }

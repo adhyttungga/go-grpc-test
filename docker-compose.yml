@@ -1,0 +1,46 @@
+version: '3.8'
+
+services: 
+  go-grpc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: go-grpc
+    ports:
+      - 8080:8080 # Map host port 8080 to container port 8080
+    depends_on:
+      - db
+      - redis
+    networks:
+      - go-grpc-network
+
+  db:
+    image: postgres:13
+    container_name: db-grpc
+    environment:
+      # POSTGRES_DB: db-grpc
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - 5432:5432 # Map host port 5432 to container port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - go-grpc-network
+
+  redis:
+    image: redis:latest
+    container_name: redis-grpc
+    environment: 
+      REDIS_PASSWORD: 123456
+    ports:
+      - 6379:6379 # Map host port 6379 to container port 6379
+    networks:
+      - go-grpc-network
+
+networks:
+  go-grpc-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

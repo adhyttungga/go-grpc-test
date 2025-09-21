@@ -20,7 +20,7 @@ type AuthRepositoryImpl struct {
 type AuthRepository interface {
 	GetUserByEmail(email string) (*entity.User, error)
 	StoreUserCache(ctx context.Context, userId int64, user entity.User) error
-	DeleteUserCache(ctx context.Context, userId int64) error
+	DeleteUserCache(ctx context.Context, userId string) error
 }
 
 func NewAuthRepository(db *gorm.DB, redisClient *redis.Client) AuthRepository {
@@ -57,8 +57,8 @@ func (r *AuthRepositoryImpl) StoreUserCache(ctx context.Context, userId int64, u
 	return nil
 }
 
-func (r *AuthRepositoryImpl) DeleteUserCache(ctx context.Context, userId int64) error {
-	if err := r.RedisClient.Del(ctx, fmt.Sprintf("session: %d", userId)).Err(); err != nil {
+func (r *AuthRepositoryImpl) DeleteUserCache(ctx context.Context, userId string) error {
+	if err := r.RedisClient.Del(ctx, fmt.Sprintf("session: %s", userId)).Err(); err != nil {
 		log.Printf("error delete user from cache: %v", err)
 		return err
 	}

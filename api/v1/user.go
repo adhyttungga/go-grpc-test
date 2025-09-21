@@ -6,6 +6,7 @@ import (
 
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
 	"github.com/adhyttungga/go-grpc-test/internal/usecase"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -23,7 +24,7 @@ func NewUserServer(uc usecase.UserUsecase) *userServer {
 func (s *userServer) Create(ctx context.Context, input *pb.CreateRequest) (*pb.CreateResponse, error) {
 	result, err := s.Usecase.Create(ctx, input)
 	if err != nil {
-		if errors.Is(err, errors.New("unauthorized access")) {
+		if errors.Is(err, errors.New("unauthorized access")) || errors.Is(err, redis.Nil) {
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 
@@ -36,7 +37,7 @@ func (s *userServer) Create(ctx context.Context, input *pb.CreateRequest) (*pb.C
 func (s *userServer) GetAll(ctx context.Context, input *emptypb.Empty) (*pb.GetAllResponse, error) {
 	result, err := s.Usecase.GetAll(ctx)
 	if err != nil {
-		if errors.Is(err, errors.New("unauthorized access")) {
+		if errors.Is(err, errors.New("unauthorized access")) || errors.Is(err, redis.Nil) {
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 
@@ -49,7 +50,7 @@ func (s *userServer) GetAll(ctx context.Context, input *emptypb.Empty) (*pb.GetA
 func (s *userServer) Update(ctx context.Context, input *pb.UpdateRequest) (*pb.UpdateResponse, error) {
 	result, err := s.Usecase.Update(ctx, input)
 	if err != nil {
-		if errors.Is(err, errors.New("unauthorized access")) {
+		if errors.Is(err, errors.New("unauthorized access")) || errors.Is(err, redis.Nil) {
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 
@@ -62,7 +63,7 @@ func (s *userServer) Update(ctx context.Context, input *pb.UpdateRequest) (*pb.U
 func (s *userServer) Delete(ctx context.Context, input *pb.DeleteRequest) (*pb.DeleteResponse, error) {
 	result, err := s.Usecase.Delete(ctx, input)
 	if err != nil {
-		if errors.Is(err, errors.New("unauthorized access")) {
+		if errors.Is(err, errors.New("unauthorized access")) || errors.Is(err, redis.Nil) {
 			return nil, status.Error(codes.PermissionDenied, err.Error())
 		}
 

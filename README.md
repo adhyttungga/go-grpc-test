@@ -1,9 +1,9 @@
 <!-- 
-  1. Add gitignore
-  2. Add docker and docker compose
-  3. Add config
-  4. Add .env
+  1. Add gitignore (done)
+  2. Add docker and docker compose (done)
+  3. Add config (done)
+  4. Add .env (done)
   5. swagger
-  6. using scripts
-  7. Add graceful shutdown
+  6. using scripts (done)
+  7. Add graceful shutdown (done)
  -->

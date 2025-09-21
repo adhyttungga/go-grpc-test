@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/adhyttungga/go-grpc-test/pkg/utils"
@@ -20,8 +19,6 @@ var excludeMethods = map[string]bool{
 
 // Auth unaryinterceptor
 func AuthInterceptor(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
-	log.Println("Method: ", info.FullMethod)
-
 	// Check if the method is in the exclusion list
 	if excludeMethods[info.FullMethod] {
 		return handler(ctx, req)

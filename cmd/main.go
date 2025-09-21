@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -9,10 +10,12 @@ import (
 	"syscall"
 
 	delivery "github.com/adhyttungga/go-grpc-test/api/v1"
+	"github.com/adhyttungga/go-grpc-test/internal/models/entity"
 	pb "github.com/adhyttungga/go-grpc-test/internal/pb"
 	"github.com/adhyttungga/go-grpc-test/internal/repository"
 	"github.com/adhyttungga/go-grpc-test/internal/usecase"
 	"github.com/adhyttungga/go-grpc-test/pkg/config"
+	"github.com/adhyttungga/go-grpc-test/pkg/middleware"
 	"google.golang.org/grpc"
 )
 
@@ -29,6 +32,9 @@ func main() {
 		log.Fatalf("error to initialize db connection: %v", err)
 	}
 
+	// Auto-migrate the models
+	db.AutoMigrate(&entity.User{}, &entity.Role{}, &entity.RoleRight{})
+
 	// Initialize repository
 	authRepo := repository.NewAuthRepository(db, client)
 	userRepo := repository.NewUserRepository(db, client)
@@ -42,15 +48,23 @@ func main() {
 	userDelivery := delivery.NewUserServer(userUsecase)
 
 	// Initialize tcp connection
-	listen, err := net.Listen("tcp", ":8080")
+	listen, err := net.Listen("tcp", fmt.Sprintf(":%s", config.Config.Port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	defer listen.Close()
 
+	// Chain unary interceptor
+	chainedUI := grpc.ChainUnaryInterceptor(
+		middleware.LoggingInterceptor,
+		middleware.AuthInterceptor,
+	)
+
 	// Initialize new gRPC server
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		chainedUI,
+	)
 
 	// Register service server
 	pb.RegisterAuthServiceServer(grpcServer, authDelivery)
