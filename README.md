@@ -7,3 +7,26 @@
   6. using scripts (done)
   7. Add graceful shutdown (done)
  -->
+```
+├── api
+│   └── v1
+├── cmd
+├── docker-compose.yml
+├── Dockerfile
+├── go.mod
+├── go.sum
+├── internal
+│   ├── models
+│   │   └── entity
+│   ├── pb
+│   ├── proto
+│   ├── repository
+│   └── usecase
+├── pkg
+│   ├── config
+│   ├── middleware
+│   ├── seeder
+│   └── utils
+├── README.md
+└── scripts
+```
